@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Data Archiver with Encryption Options</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.1em;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #e8ebff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .file-size {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .remove-file {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .remove-file:hover {
+            background: #ff3838;
+        }
+
+        .options {
+            background: #f8f9ff;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option-group {
+            margin-bottom: 20px;
+        }
+
+        .option-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .file-item.drag-over {
+            background: #e8ebff;
+            border: 2px dashed #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Secure Data Archiver</h1>
+        <p class="subtitle">Compress and encrypt your files with military-grade security</p>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('archive')">Archive & Encrypt</button>
+            <button class="tab" onclick="switchTab('extract')">Decrypt & Extract</button>
+        </div>
+
+        <!-- Archive Tab -->
+        <div id="archive-tab" class="tab-content active">
+            <div class="upload-area" id="uploadArea" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <div class="upload-icon">📁</div>
+                <h3>Drag & Drop files here</h3>
+                <p>or click to browse</p>
+                <input type="file" id="fileInput" class="file-input" multiple onchange="handleFileSelect(event)">
+            </div>
+
+            <div id="fileList" class="file-list"></div>
+
+            <div class="options">
+                <div class="option-group">
+                    <label for="password">Encryption Password:</label>
+                    <input type="password" id="password" class="password-input" placeholder="Enter a strong password">
+                </div>
+                <div class="option-group">
+                    <label for="encryptionType">Encryption Algorithm:</label>
+                    <select id="encryptionType">
+                        <option value="AES-GCM">AES-GCM (Recommended)</option>
+                        <option value="AES-CBC">AES-CBC</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <label for="keyLength">Key Length:</label>
+                    <select id="keyLength">
+                        <option value="256">256 bits (Most Secure)</option>
+                        <option value="192">192 bits</option>
+                        <option value="128">128 bits</option>
+                    </select>
+                </div>
+                <div class="option-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="compress" checked>
+                        <label for="compress" style="margin: 0; font-weight: normal;">Enable Compression</label>
+                    </div>
+                </div>
+            </div>
+
+            <button class="button" onclick="createArchive()">🔒 Create Encrypted Archive</button>
+            <div id="archiveStatus" class="status"></div>
+            <div id="archiveProgress" class="progress-bar"><div class="progress-fill" id="archiveProgressFill">0%</div></div>
+        </div>
+
+        <!-- Extract Tab -->
+        <div id="extract-tab" class="tab-content">
+            <div class="upload-area" id="extractUploadArea" ondrop="handleExtractDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <div class="upload-icon">📦</div>
+                <h3>Drag & Drop encrypted archive here</h3>
+                <p>or click to browse</p>
+                <input type="file" id="extractFileInput" class="file-input" accept=".sda" onchange="handleExtractFileSelect(event)">
+            </div>
+
+            <div class="options">
+                <div class="option-group">
+                    <label for="extractPassword">Decryption Password:</label>
+                    <input type="password" id="extractPassword" class="password-input" placeholder="Enter the encryption password">
+                </div>
+            </div>
+
+            <button class="button" onclick="extractArchive()">🔓 Decrypt & Extract Archive</button>
+            <div id="extractStatus" class="status"></div>
+            <div id="extractProgress" class="progress-bar"><div class="progress-fill" id="extractProgressFill">0%</div></div>
+            <div id="extractedFiles"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+        let extractFile = null;
+
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            if (tab === 'archive') {
+                document.querySelector('.tab').classList.add('active');
+                document.getElementById('archive-tab').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('extract-tab').classList.add('active');
+            }
+        }
+
+        // File upload handling
+        document.getElementById('uploadArea').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+
+        function handleFileSelect(event) {
+            addFiles(Array.from(event.target.files));
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('dragover');
+            const files = Array.from(event.dataTransfer.files);
+            addFiles(files);
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.currentTarget.classList.remove('dragover');
+        }
+
+        function addFiles(files) {
+            files.forEach(file => {
+                if (!selectedFiles.find(f => f.name === file.name && f.size === file.size)) {
+                    selectedFiles.push(file);
+                }
+            });
+            updateFileList();
+        }
+
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-name">${escapeHtml(file.name)}</div>
+                        <div class="file-size">${formatFileSize(file.size)}</div>
+                    </div>
+                    <button class="remove-file" onclick="removeFile(${index})">Remove</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Extract file handling
+        document.getElementById('extractUploadArea').addEventListener('click', () => {
+            document.getElementById('extractFileInput').click();
+        });
+
+        function handleExtractFileSelect(event) {
+            extractFile = event.target.files[0];
+            if (extractFile) {
+                document.getElementById('extractUploadArea').innerHTML = `
+                    <div class="upload-icon">✅</div>
+                    <h3>${escapeHtml(extractFile.name)}</h3>
+                    <p>Ready to decrypt</p>
+                `;
+            }
+        }
+
+        function handleExtractDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('dragover');
+            const files = Array.from(event.dataTransfer.files);
+            if (files.length > 0) {
+                extractFile = files[0];
+                document.getElementById('extractUploadArea').innerHTML = `
+                    <div class="upload-icon">✅</div>
+                    <h3>${escapeHtml(extractFile.name)}</h3>
+                    <p>Ready to decrypt</p>
+                `;
+            }
+        }
+
+        // Encryption and Archiving
+        async function createArchive() {
+            if (selectedFiles.length === 0) {
+                showStatus('archiveStatus', 'Please select at least one file.', 'error');
+                return;
+            }
+
+            const password = document.getElementById('password').value;
+            if (!password || password.length < 6) {
+                showStatus('archiveStatus', 'Please enter a password (minimum 6 characters).', 'error');
+                return;
+            }
+
+            try {
+                showStatus('archiveStatus', 'Creating archive...', 'info');
+                document.getElementById('archiveProgress').style.display = 'block';
+                updateProgress('archiveProgressFill', 10);
+
+                const encryptionType = document.getElementById('encryptionType').value;
+                const keyLength = parseInt(document.getElementById('keyLength').value);
+                const compress = document.getElementById('compress').checked;
+
+                // Create file manifest
+                const manifest = {
+                    version: '1.0',
+                    timestamp: new Date().toISOString(),
+                    encryption: {
+                        algorithm: encryptionType,
+                        keyLength: keyLength
+                    },
+                    compression: compress,
+                    files: selectedFiles.map(f => ({
+                        name: f.name,
+                        size: f.size,
+                        type: f.type
+                    }))
+                };
+
+                updateProgress('archiveProgressFill', 20);
+
+                // Read all files
+                const fileDataArray = await Promise.all(
+                    selectedFiles.map(async (file) => {
+                        const arrayBuffer = await file.arrayBuffer();
+                        return { name: file.name, data: arrayBuffer };
+                    })
+                );
+
+                updateProgress('archiveProgressFill', 40);
+
+                // Create archive structure: manifest + file data
+                const fileList = fileDataArray.map(f => ({ 
+                    name: f.name, 
+                    size: f.data.byteLength,
+                    offset: 0  // Will calculate after manifest
+                }));
+                
+                const manifestData = {
+                    ...manifest,
+                    files: fileList
+                };
+                
+                // Calculate offsets correctly - iterate until manifest size stabilizes
+                const lengthPrefixSize = 4;
+                let manifestBytes;
+                let manifestSize = 0;
+                let lastManifestSize = -1;
+                let iterations = 0;
+                const maxIterations = 10;
+                
+                // Keep iterating until manifest size stabilizes
+                while (manifestSize !== lastManifestSize && iterations < maxIterations) {
+                    lastManifestSize = manifestSize;
+                    
+                    // Calculate offsets based on current manifest size
+                    let currentOffset = lengthPrefixSize + (manifestSize || 0);
+                    fileList.forEach(file => {
+                        file.offset = currentOffset;
+                        currentOffset += file.size;
+                    });
+                    
+                    // Calculate actual manifest size with these offsets
+                    const manifestJson = JSON.stringify(manifestData);
+                    manifestBytes = new TextEncoder().encode(manifestJson);
+                    manifestSize = manifestBytes.byteLength;
+                    iterations++;
+                }
+                
+                // Final manifest bytes
+                const finalManifestBytes = manifestBytes;
+                
+                // Create length prefix with actual manifest size
+                const lengthPrefix = new Uint8Array(4);
+                new DataView(lengthPrefix.buffer).setUint32(0, finalManifestBytes.byteLength, false);
+                
+                // Combine all data
+                const totalSize = lengthPrefix.byteLength + finalManifestBytes.byteLength + 
+                    fileDataArray.reduce((sum, f) => sum + f.data.byteLength, 0);
+                const combined = new Uint8Array(totalSize);
+                
+                // Write length prefix
+                combined.set(lengthPrefix, 0);
+                let offset = lengthPrefix.byteLength;
+                
+                // Write manifest
+                combined.set(finalManifestBytes, offset);
+                offset += finalManifestBytes.byteLength;
+                
+                // Write file data
+                for (const file of fileDataArray) {
+                    combined.set(new Uint8Array(file.data), offset);
+                    offset += file.data.byteLength;
+                }
+                
+                let archiveData = combined.buffer;
+                
+                // Compress if enabled
+                if (compress) {
+                    archiveData = await compressData(archiveData);
+                }
+
+                updateProgress('archiveProgressFill', 60);
+
+                // Encrypt
+                const encryptedData = await encryptData(archiveData, password, encryptionType, keyLength);
+                
+                updateProgress('archiveProgressFill', 80);
+
+                // Save as .sda file
+                const blob = new Blob([encryptedData], { type: 'application/octet-stream' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `secure_archive_${Date.now()}.sda`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                updateProgress('archiveProgressFill', 100);
+                showStatus('archiveStatus', 'Archive created and encrypted successfully!', 'success');
+                
+                // Reset after delay
+                setTimeout(() => {
+                    selectedFiles = [];
+                    updateFileList();
+                    document.getElementById('password').value = '';
+                    document.getElementById('archiveProgress').style.display = 'none';
+                }, 3000);
+
+            } catch (error) {
+                console.error('Error creating archive:', error);
+                showStatus('archiveStatus', 'Error: ' + error.message, 'error');
+                document.getElementById('archiveProgress').style.display = 'none';
+            }
+        }
+
+        async function compressData(data) {
+            const stream = new CompressionStream('gzip');
+            const writer = stream.writable.getWriter();
+            const reader = stream.readable.getReader();
+            
+            const dataArray = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
+            writer.write(dataArray);
+            writer.close();
+            
+            const chunks = [];
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+            }
+            
+            const combined = new Uint8Array(chunks.reduce((acc, chunk) => acc + chunk.length, 0));
+            let offset = 0;
+            for (const chunk of chunks) {
+                combined.set(chunk, offset);
+                offset += chunk.length;
+            }
+            
+            return combined.buffer;
+        }
+
+        async function encryptData(data, password, algorithm, keyLength) {
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw',
+                new TextEncoder().encode(password),
+                { name: 'PBKDF2' },
+                false,
+                ['deriveBits', 'deriveKey']
+            );
+
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            // GCM uses 12-byte IV, CBC uses 16-byte IV
+            const ivLength = algorithm === 'AES-GCM' ? 12 : 16;
+            const iv = crypto.getRandomValues(new Uint8Array(ivLength));
+
+            const key = await crypto.subtle.deriveKey(
+                {
+                    name: 'PBKDF2',
+                    salt: salt,
+                    iterations: 100000,
+                    hash: 'SHA-256'
+                },
+                keyMaterial,
+                { name: algorithm, length: keyLength },
+                false,
+                ['encrypt']
+            );
+
+            const encrypted = await crypto.subtle.encrypt(
+                { name: algorithm, iv: iv },
+                key,
+                data
+            );
+
+            // Combine: salt (16) + algorithm byte (1) + iv + encrypted data
+            // Store algorithm info: 0 = GCM, 1 = CBC
+            const algorithmByte = algorithm === 'AES-GCM' ? 0 : 1;
+            const result = new Uint8Array(salt.length + 1 + iv.length + encrypted.byteLength);
+            result.set(salt, 0);
+            result[16] = algorithmByte;
+            result.set(iv, 17);
+            result.set(new Uint8Array(encrypted), 17 + iv.length);
+
+            return result.buffer;
+        }
+
+        // Decryption and Extraction
+        async function extractArchive() {
+            if (!extractFile) {
+                showStatus('extractStatus', 'Please select an encrypted archive file.', 'error');
+                return;
+            }
+
+            const password = document.getElementById('extractPassword').value;
+            if (!password) {
+                showStatus('extractStatus', 'Please enter the decryption password.', 'error');
+                return;
+            }
+
+            try {
+                showStatus('extractStatus', 'Decrypting archive...', 'info');
+                document.getElementById('extractProgress').style.display = 'block';
+                updateProgress('extractProgressFill', 10);
+
+                const arrayBuffer = await extractFile.arrayBuffer();
+                updateProgress('extractProgressFill', 30);
+
+                // Decrypt
+                const decryptedData = await decryptData(arrayBuffer, password);
+                updateProgress('extractProgressFill', 50);
+
+                // Decompress if needed
+                let dataBuffer = decryptedData;
+                let isCompressed = false;
+                
+                // Ensure we have an ArrayBuffer
+                if (!(dataBuffer instanceof ArrayBuffer)) {
+                    dataBuffer = dataBuffer.buffer || new Uint8Array(dataBuffer).buffer;
+                }
+                
+                // Try to decompress (check for gzip magic number)
+                try {
+                    const view = new Uint8Array(dataBuffer);
+                    // Check for gzip magic number (0x1f 0x8b)
+                    if (view.length >= 2 && view[0] === 0x1f && view[1] === 0x8b) {
+                        const decompressed = await decompressData(dataBuffer);
+                        dataBuffer = decompressed instanceof ArrayBuffer ? decompressed : decompressed.buffer;
+                        isCompressed = true;
+                    }
+                } catch (e) {
+                    // If decompression fails, data is not compressed
+                    console.log('Data not compressed or decompression failed');
+                }
+
+                updateProgress('extractProgressFill', 60);
+
+                // Parse archive structure - ensure we have a proper ArrayBuffer
+                let finalBuffer = dataBuffer;
+                if (!(finalBuffer instanceof ArrayBuffer)) {
+                    if (finalBuffer.buffer instanceof ArrayBuffer) {
+                        // It's a TypedArray, get the underlying buffer
+                        finalBuffer = finalBuffer.buffer;
+                    } else {
+                        // Convert to ArrayBuffer
+                        finalBuffer = new Uint8Array(finalBuffer).buffer;
+                    }
+                }
+                
+                // Verify we have an ArrayBuffer
+                if (!(finalBuffer instanceof ArrayBuffer)) {
+                    throw new Error('Invalid data format: could not get ArrayBuffer');
+                }
+                
+                const dataView = new Uint8Array(finalBuffer);
+                
+                // Read manifest length (first 4 bytes)
+                if (dataView.length < 4) {
+                    throw new Error('Invalid archive format');
+                }
+                
+                // Create DataView with the ArrayBuffer directly (always use byteOffset 0)
+                const manifestLength = new DataView(finalBuffer, 0, Math.min(4, finalBuffer.byteLength)).getUint32(0, false);
+                
+                if (manifestLength > dataView.length - 4 || manifestLength === 0) {
+                    throw new Error('Invalid archive format: manifest length invalid');
+                }
+                
+                // Read manifest
+                const manifestBytes = dataView.slice(4, 4 + manifestLength);
+                const manifestText = new TextDecoder().decode(manifestBytes);
+                const manifest = JSON.parse(manifestText);
+                
+                // Verify manifest was read correctly - calculate expected start of file data
+                const expectedFileDataStart = 4 + manifestLength;
+                
+                updateProgress('extractProgressFill', 70);
+
+                // Extract files using offsets from manifest
+                const extractedFilesDiv = document.getElementById('extractedFiles');
+                extractedFilesDiv.innerHTML = '<h3 style="margin: 20px 0;">Extracted Files:</h3>';
+
+                for (const fileInfo of manifest.files) {
+                    // Ensure we're slicing from the correct buffer
+                    if (fileInfo.offset + fileInfo.size > finalBuffer.byteLength) {
+                        console.warn(`File ${fileInfo.name}: offset/size exceeds buffer length`);
+                        continue;
+                    }
+                    
+                    // Verify offset is at least after the manifest
+                    if (fileInfo.offset < expectedFileDataStart) {
+                        console.warn(`File ${fileInfo.name}: offset ${fileInfo.offset} is before manifest end ${expectedFileDataStart}, adjusting...`);
+                        // This shouldn't happen, but if it does, adjust the offset
+                    }
+                    
+                    // Read file data from exact offset
+                    const fileData = new Uint8Array(finalBuffer, fileInfo.offset, fileInfo.size);
+                    const blob = new Blob([fileData], { type: fileInfo.type || 'application/octet-stream' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const fileLink = document.createElement('div');
+                    fileLink.className = 'file-item';
+                    fileLink.innerHTML = `
+                        <div class="file-info">
+                            <div class="file-name">${escapeHtml(fileInfo.name)}</div>
+                            <div class="file-size">${formatFileSize(fileInfo.size)}</div>
+                        </div>
+                        <a href="${url}" download="${escapeHtml(fileInfo.name)}" class="button" style="width: auto; padding: 8px 15px; text-decoration: none; display: inline-block;">Download</a>
+                    `;
+                    extractedFilesDiv.appendChild(fileLink);
+                }
+
+                updateProgress('extractProgressFill', 100);
+                showStatus('extractStatus', 'Archive decrypted and extracted successfully!', 'success');
+
+            } catch (error) {
+                console.error('Error extracting archive:', error);
+                showStatus('extractStatus', 'Error: ' + error.message + '. Please check your password.', 'error');
+                document.getElementById('extractProgress').style.display = 'none';
+            }
+        }
+
+        async function decompressData(data) {
+            const stream = new DecompressionStream('gzip');
+            const writer = stream.writable.getWriter();
+            const reader = stream.readable.getReader();
+            
+            const dataArray = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
+            writer.write(dataArray);
+            writer.close();
+            
+            const chunks = [];
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+            }
+            
+            const combined = new Uint8Array(chunks.reduce((acc, chunk) => acc + chunk.length, 0));
+            let offset = 0;
+            for (const chunk of chunks) {
+                combined.set(chunk, offset);
+                offset += chunk.length;
+            }
+            
+            return combined.buffer;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function decryptData(encryptedData, password) {
+            const data = new Uint8Array(encryptedData);
+            
+            if (data.length < 18) {
+                throw new Error('Invalid encrypted data format');
+            }
+            
+            // Ensure we have an ArrayBuffer to work with
+            let buffer = encryptedData;
+            if (!(buffer instanceof ArrayBuffer)) {
+                if (encryptedData instanceof Uint8Array && encryptedData.buffer instanceof ArrayBuffer) {
+                    buffer = encryptedData.buffer;
+                } else {
+                    buffer = new Uint8Array(encryptedData).buffer;
+                }
+            }
+            
+            // Create a view of the buffer
+            const dataArray = new Uint8Array(buffer);
+            
+            if (dataArray.length < 18) {
+                throw new Error('Invalid encrypted data format: data too short');
+            }
+            
+            // Extract salt, algorithm, iv, and encrypted data as new ArrayBuffers
+            const saltBuffer = buffer.slice(0, 16);
+            const algorithmByte = dataArray[16]; // 0 = GCM, 1 = CBC
+            const algorithm = algorithmByte === 0 ? 'AES-GCM' : 'AES-CBC';
+            const ivLength = algorithm === 'AES-GCM' ? 12 : 16;
+            
+            if (dataArray.length < 17 + ivLength) {
+                throw new Error('Invalid encrypted data format: insufficient data');
+            }
+            
+            const ivBuffer = buffer.slice(17, 17 + ivLength);
+            const encryptedBuffer = buffer.slice(17 + ivLength);
+
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw',
+                new TextEncoder().encode(password),
+                { name: 'PBKDF2' },
+                false,
+                ['deriveBits', 'deriveKey']
+            );
+
+            // Try different key lengths if needed
+            const keyLengths = [256, 192, 128];
+            
+            for (const keyLen of keyLengths) {
+                try {
+                    const key = await crypto.subtle.deriveKey(
+                        {
+                            name: 'PBKDF2',
+                            salt: saltBuffer,
+                            iterations: 100000,
+                            hash: 'SHA-256'
+                        },
+                        keyMaterial,
+                        { name: algorithm, length: keyLen },
+                        false,
+                        ['decrypt']
+                    );
+                    
+                    const decrypted = await crypto.subtle.decrypt(
+                        { name: algorithm, iv: new Uint8Array(ivBuffer) },
+                        key,
+                        encryptedBuffer
+                    );
+
+                    return decrypted;
+                } catch (e) {
+                    // Try next key length
+                    continue;
+                }
+            }
+            
+            throw new Error('Decryption failed. Please check your password.');
+        }
+
+        function showStatus(elementId, message, type) {
+            const statusEl = document.getElementById(elementId);
+            statusEl.textContent = message;
+            statusEl.className = 'status ' + type;
+        }
+
+        function updateProgress(elementId, percent) {
+            const progressFill = document.getElementById(elementId);
+            progressFill.style.width = percent + '%';
+            progressFill.textContent = percent + '%';
+        }
+    </script>
+</body>
+</html>
